@@ -44,15 +44,18 @@ int main(int argc, char *argv[]) try {
 
   std::vector<PenroseTriangle> tiling;
 
+  const int canvasSize = 1000;
+  const float radius = canvasSize / 2.f;
   // Tiling initialisation
-  for (int i = 0; i < 6; ++i) {
-    const float phi1 = (2*i - 1) * pi / 10;
-    const float phi2 = (2*i + 1) * pi / 10;
+  for (int i = 0, sign = -1; i < 10; ++i, sign *= -1) {
+    const float phi1 = (2*i - sign) * pi / 10;
+    const float phi2 = (2*i + sign) * pi / 10;
+
     tiling.emplace_back(
       Color::kRed,
-      Point(0,0),
-      Point(cos(phi1), sin(phi1)),
-      Point(cos(phi2), sin(phi2))
+      radius * Point(cos(phi1), sin(phi1)) + radius * Point(1,1),
+      Point(0,0) + radius * Point(1,1),
+      radius * Point(cos(phi2), sin(phi2)) + radius * Point(1,1)
     );
   }
 
@@ -74,14 +77,16 @@ int main(int argc, char *argv[]) try {
   }
   fmt::print("Hello World!");
 
-
-  // out << "<svg xmlns='http://www.w3.org/2000/svg' height='" << r * 16
-  //       << "' width='" << r * 16 << "'>\n"
-  //       << "<rect height='100%' width='100%' fill='black'/>\n"
-  //       << "<g stroke='rgb(255,165,0)'>\n";
-  // for (const auto& line : svg)
-  //     out << line << '\n';
-  // out << "</g>\n</svg>\n";
+  out << "<svg xmlns='http://www.w3.org/2000/svg' height='" << canvasSize
+        << "' width='" << canvasSize << "'>\n"
+        << "<rect height='100%' width='100%' fill='black'/>\n"
+        << "<g stroke='rgb(255,165,0)'>\n";
+  for (const auto& tr : tiling) {
+    out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y);
+    // out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[1].x, tr.vertices[1].y, tr.vertices[2].x, tr.vertices[2].y);
+    out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[2].x, tr.vertices[2].y, tr.vertices[0].x, tr.vertices[0].y);
+  }
+  out << "</g>\n</svg>\n";
 
   return EXIT_SUCCESS;
 

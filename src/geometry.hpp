@@ -19,6 +19,12 @@ Point operator-(Point pt1, Point pt2) {
 Point operator*(float value, Point pt) {
   return {value * pt.x, value * pt.y};
 }
+Point operator*(Point pt, float value) {
+  return {value * pt.x, value * pt.y};
+}
+Point operator/(Point pt, float value) {
+  return {pt.x / value, pt.y / value};
+}
 Point scalar(Point pt1, Point pt2) {
   return {pt1.x * pt2.x, pt1.y * pt2.y};
 }
