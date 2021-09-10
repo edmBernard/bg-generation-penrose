@@ -1,5 +1,6 @@
 #include <geometry.hpp>
 #include <penrose.hpp>
+#include <save.hpp>
 
 #include <cxxopts.hpp>
 #include <spdlog/spdlog.h>
@@ -66,27 +67,10 @@ int main(int argc, char *argv[]) try {
     tiling = deflate(tiling);
   }
 
-  std::ofstream out("penrose_tiling.svg");
-  if (!out) {
-      std::cerr << "Cannot open output file.\n";
-      return EXIT_FAILURE;
+  if (!saveTiling(tiling, canvasSize)) {
+    spdlog::error("Failed to save in file");
+    return EXIT_FAILURE;
   }
-
-  for (auto tr : tiling) {
-    fmt::print("{}\n", to_string(tr));
-  }
-  fmt::print("Hello World!");
-
-  out << "<svg xmlns='http://www.w3.org/2000/svg' height='" << canvasSize
-        << "' width='" << canvasSize << "'>\n"
-        << "<rect height='100%' width='100%' fill='black'/>\n"
-        << "<g stroke='rgb(255,165,0)'>\n";
-  for (const auto& tr : tiling) {
-    out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y);
-    // out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[1].x, tr.vertices[1].y, tr.vertices[2].x, tr.vertices[2].y);
-    out << fmt::format("<line x1='{:.3f}' y1='{:.3f}' x2='{:.3f}' y2='{:.3f}'/>\n", tr.vertices[2].x, tr.vertices[2].y, tr.vertices[0].x, tr.vertices[0].y);
-  }
-  out << "</g>\n</svg>\n";
 
   return EXIT_SUCCESS;
 
