@@ -5,6 +5,8 @@
 
 #include <array>
 #include <string>
+#include <optional>
+
 struct Point {
   float x;
   float y;
@@ -48,10 +50,47 @@ struct Triangle {
   }
 };
 
-std::string to_string(const Point& pt) {
+std::string to_string(const Point &pt) {
   return fmt::format("({}, {})", pt.x, pt.y);
 }
 
-std::string to_string(const Triangle& triangle) {
+std::string to_string(const Triangle &triangle) {
   return fmt::format("{}, {}, {}", to_string(triangle.vertices[0]), to_string(triangle.vertices[1]), to_string(triangle.vertices[2]));
 }
+
+namespace svg {
+namespace details {
+
+std::string to_path(const Triangle &tr) {
+  return fmt::format("M {} {} L {} {} L {} {}", tr.vertices[2].x, tr.vertices[2].y, tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y);
+}
+}
+
+struct Fill {
+  int r;
+  int g;
+  int b;
+};
+
+struct Strockes {
+  int r;
+  int g;
+  int b;
+  float width;
+};
+
+template <typename T, typename Lambda>
+std::string to_path(const std::vector<T> &triangles, std::optional<Fill> fill, std::optional<Strockes> strockes, Lambda func) {
+  std::string s_path;
+  for (auto & tr : triangles) {
+    if (func(tr)) {
+      s_path += details::to_path(tr) + " ";
+    }
+  }
+  std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->r, fill->g, fill->b) : "";
+  std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{}", strockes->r, strockes->g, strockes->b, strockes->width) : "";
+  return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
+}
+
+
+} // namespace svg
