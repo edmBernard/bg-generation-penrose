@@ -48,7 +48,7 @@ jobs:
     - name: build
       run: cmake --build . --config Release
     - name: run
-      run: ./Artifact/bg-generation-penrose
+      run: ./Artifact/bg-generation-penrose Artifact/example.svg
     - uses: actions/upload-artifact@v1
       with:
         name: bg-generation-penrose-${{ matrix.config.triplet }}

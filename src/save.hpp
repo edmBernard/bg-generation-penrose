@@ -49,15 +49,15 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
     }
   }
   std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->r, fill->g, fill->b) : "fill:none";
-  std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{}", strockes->r, strockes->g, strockes->b, strockes->width) : "";
+  std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{};stroke-linecap:butt;stroke-linejoin:round", strockes->r, strockes->g, strockes->b, strockes->width) : "";
   return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
 }
 
-[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseTriangle> &triangles, int canvasSize, RGB rgb1, RGB rgb2, RGB background) {
+[[nodiscard]] bool saveTiling(const std::string &filename, const std::vector<penrose::PenroseTriangle> &triangles, int canvasSize, RGB rgb1, RGB rgb2, RGB background) {
 
-  std::ofstream out("penrose_tiling.svg");
+  std::ofstream out(filename);
   if (!out) {
-    spdlog::error("Cannot open output file.");
+    spdlog::error("Cannot open output file : {}", filename);
     return false;
   }
 
@@ -73,11 +73,11 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   return true;
 }
 
-[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize, RGB rgb1, RGB rgb2, RGB background, int threshold = 6) {
+[[nodiscard]] bool saveTiling(const std::string &filename, const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize, RGB rgb1, RGB rgb2, RGB background, int threshold = 6) {
 
-  std::ofstream out("penrose_tiling_q.svg");
+  std::ofstream out(filename);
   if (!out) {
-    spdlog::error("Cannot open output file.");
+    spdlog::error("Cannot open output file : {}.", filename);
     return false;
   }
   std::random_device rd;
