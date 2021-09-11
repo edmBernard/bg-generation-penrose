@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) try {
   // clang-format off
   options.add_options()
     ("h,help", "Print help")
-    ("l,level", "Number of subdivision done", cxxopts::value<int>())
+    ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("3"))
     ;
   // clang-format on
   options.parse_positional({"level"});
@@ -33,10 +33,6 @@ int main(int argc, char *argv[]) try {
     return EXIT_SUCCESS;
   }
 
-  if (!clo.count("level")) {
-    spdlog::error("Deflation level required");
-    return EXIT_FAILURE;
-  }
   const int level = clo["level"].as<int>();
 
   // =================================================================================================
