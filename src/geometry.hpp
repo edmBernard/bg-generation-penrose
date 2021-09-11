@@ -12,28 +12,31 @@ constexpr float epsilon = 0.1f; // use for the comparison between Point
 struct Point {
   float x;
   float y;
+
+  Point(float x, float y)
+      : x(x), y(y) {
+  }
 };
 
-
-Point operator+(const Point &pt1, const Point & pt2) {
+Point operator+(const Point &pt1, const Point &pt2) {
   return {pt1.x + pt2.x, pt1.y + pt2.y};
 }
-Point operator-(const Point & pt1, const Point & pt2) {
+Point operator-(const Point &pt1, const Point &pt2) {
   return {pt1.x - pt2.x, pt1.y - pt2.y};
 }
-Point operator*(float value, const Point & pt) {
+Point operator*(float value, const Point &pt) {
   return {value * pt.x, value * pt.y};
 }
-Point operator*(const Point & pt, float value) {
+Point operator*(const Point &pt, float value) {
   return {value * pt.x, value * pt.y};
 }
-Point operator/(const Point & pt, float value) {
+Point operator/(const Point &pt, float value) {
   return {pt.x / value, pt.y / value};
 }
-float scalar(const Point & pt1, const Point & pt2) {
+float scalar(const Point &pt1, const Point &pt2) {
   return pt1.x * pt2.x + pt1.y * pt2.y;
 }
-float norm(const Point & pt1) {
+float norm(const Point &pt1) {
   return pt1.x * pt1.x + pt1.y * pt1.y;
 }
 bool operator==(const Point &lhs, const Point &rhs) {
@@ -48,10 +51,8 @@ bool operator<(const Point &lhs, const Point &rhs) {
 struct Triangle {
   std::array<Point, 3> vertices;
 
-  Triangle(Point A, Point B, Point C) {
-    vertices[0] = A;
-    vertices[1] = B;
-    vertices[2] = C;
+  Triangle(Point A, Point B, Point C)
+      : vertices{A, B, C} {
   }
 
   Point center() {
@@ -68,11 +69,8 @@ bool operator==(const Triangle &lhs, const Triangle &rhs) {
 struct Quadrilateral {
   std::array<Point, 4> vertices;
 
-  Quadrilateral(Point A, Point B, Point C, Point D) {
-    vertices[0] = A;
-    vertices[1] = B;
-    vertices[2] = C;
-    vertices[3] = D;
+  Quadrilateral(Point A, Point B, Point C, Point D)
+      : vertices{A, B, C, D} {
   }
 
   Point center() const {
