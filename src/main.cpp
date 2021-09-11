@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) try {
   }
 
   auto start_temp = std::chrono::high_resolution_clock::now();
-  if (!saveTiling(tiling, canvasSize)) {
+  if (!svg::saveTiling(tiling, canvasSize)) {
     spdlog::error("Failed to save in file");
     return EXIT_FAILURE;
   }
