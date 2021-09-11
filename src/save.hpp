@@ -1,3 +1,13 @@
+//
+//  https://github.com/edmBernard/bg-generation-penrose
+//
+//  Created by Erwan BERNARD on 11/09/2021.
+//
+//  Copyright (c) 2021 Erwan BERNARD. All rights reserved.
+//  Distributed under the Apache License, Version 2.0. (See accompanying
+//  file LICENSE or copy at http://www.apache.org/licenses/LICENSE-2.0)
+//
+
 #pragma once
 
 #include <penrose.hpp>
