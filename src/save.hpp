@@ -61,10 +61,10 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
     return false;
   }
 
-  const float strokesWidth = norm(triangles[0].vertices[0]-triangles[0].vertices[1]) / 100.0f;
+  const float strokesWidth = std::sqrt(norm(triangles[0].vertices[0]-triangles[0].vertices[1])) / 15.0f;
 
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
-      << fmt::format("height='{}' width='{}'>\n", canvasSize, canvasSize)
+      << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size",canvasSize))
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
   out << to_path(triangles, Fill{rgb1.r, rgb1.g, rgb1.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kKite; });
@@ -84,10 +84,10 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(0, 10);
 
-  const float strokesWidth = norm(quad[0].vertices[0]-quad[0].vertices[1]) / 100.0f;
+  const float strokesWidth = std::sqrt(norm(quad[0].vertices[0]-quad[0].vertices[1])) / 15.0f;
 
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
-      << fmt::format("height='{}' width='{}'>\n", canvasSize, canvasSize)
+      << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size",canvasSize))
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
   out << to_path(quad, Fill{rgb1.r, rgb1.g, rgb1.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kKite ? distrib(gen) > threshold : false; });

@@ -3,12 +3,12 @@
 #include <save.hpp>
 
 #include <cxxopts.hpp>
-#include <spdlog/spdlog.h>
 #include <spdlog/cfg/env.h>
+#include <spdlog/spdlog.h>
 
+#include <chrono>
 #include <fstream>
 #include <vector>
-#include <chrono>
 
 int main(int argc, char *argv[]) try {
 
@@ -43,17 +43,18 @@ int main(int argc, char *argv[]) try {
   std::vector<PenroseTriangle> tiling;
 
   const int canvasSize = 1000;
-  const float radius = canvasSize / 2.f;
+  const float radius = canvasSize;
+  const Point center = canvasSize / 2.f * Point(1, 1);
   // Tiling initialisation
   for (int i = 0, sign = -1; i < 10; ++i, sign *= -1) {
     const float phi1 = (2*i - sign) * pi / 10;
     const float phi2 = (2*i + sign) * pi / 10;
 
     tiling.emplace_back(
-      TriangleKind::kDart,
-      radius * Point(cos(phi1), sin(phi1)) + radius * Point(1,1),
-      Point(0,0) + radius * Point(1,1),
-      radius * Point(cos(phi2), sin(phi2)) + radius * Point(1,1)
+        TriangleKind::kDart,
+      radius * Point(cos(phi1), sin(phi1)) + center,
+      Point(0,0) + center,
+      radius * Point(cos(phi2), sin(phi2)) + center
     );
   }
 
@@ -96,5 +97,4 @@ int main(int argc, char *argv[]) try {
 } catch (const std::exception &e) {
   spdlog::error("{}", e.what());
   return EXIT_FAILURE;
-
 }
