@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 int main(int argc, char *argv[]) try {
 
@@ -67,10 +68,13 @@ int main(int argc, char *argv[]) try {
     tiling = deflate(tiling);
   }
 
+  auto start_temp = std::chrono::high_resolution_clock::now();
   if (!saveTiling(tiling, canvasSize)) {
     spdlog::error("Failed to save in file");
     return EXIT_FAILURE;
   }
+  std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;
+  fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp.count());
 
   return EXIT_SUCCESS;
 
