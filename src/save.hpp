@@ -67,8 +67,8 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
       << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size",canvasSize))
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
-  out << to_path(triangles, Fill{rgb1.r, rgb1.g, rgb1.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kKite; });
-  out << to_path(triangles, Fill{rgb2.r, rgb2.g, rgb2.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kDart; });
+  out << to_path(triangles, Fill{rgb1.r, rgb1.g, rgb1.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return isSmall(tr.color); });
+  out << to_path(triangles, Fill{rgb2.r, rgb2.g, rgb2.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return !isSmall(tr.color); });
   out << "</g>\n</svg>\n";
   return true;
 }
@@ -90,8 +90,8 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
       << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size",canvasSize))
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
-  out << to_path(quad, Fill{rgb1.r, rgb1.g, rgb1.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kKite ? distrib(gen) > threshold : false; });
-  out << to_path(quad, Fill{rgb2.r, rgb2.g, rgb2.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kDart ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{rgb1.r, rgb1.g, rgb1.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{rgb2.r, rgb2.g, rgb2.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) ? distrib(gen) > threshold : false; });
   out << to_path(quad, {}, Strockes{0, 0, 0, strokesWidth});
   out << "</g>\n</svg>\n";
   return true;

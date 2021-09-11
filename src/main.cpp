@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) try {
     ("h,help", "Print help")
     ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("3"))
     ("o,output", "Output filename (.svg)", cxxopts::value<std::string>())
+    ("rhombus", "Use Rhombus (P3) form otherwise it use Kite and Dart (P2)", cxxopts::value<bool>())
     ;
   // clang-format on
   options.parse_positional({"output", "level"});
@@ -50,19 +51,32 @@ int main(int argc, char *argv[]) try {
 
   std::vector<PenroseTriangle> tiling;
 
-  const int canvasSize = 1000;
+  const int canvasSize = 2000;
   const float radius = canvasSize;
   const Point center = canvasSize / 2.f * Point(1, 1);
   // Tiling initialisation
-  for (int i = 0, sign = -1; i < 10; ++i, sign *= -1) {
-    const float phi1 = (2 * i - sign) * pi / 10;
-    const float phi2 = (2 * i + sign) * pi / 10;
+  if (clo.count("rhombus")) {
+    for (int i = 0, sign = -1; i < 10; ++i, sign *= -1) {
+      const float phi1 = (2 * i - sign) * pi / 10;
+      const float phi2 = (2 * i + sign) * pi / 10;
 
-    tiling.emplace_back(
-        TriangleKind::kDart,
-        radius * Point(cos(phi1), sin(phi1)) + center,
-        Point(0, 0) + center,
-        radius * Point(cos(phi2), sin(phi2)) + center);
+      tiling.emplace_back(
+          TriangleKind::kRhombsCyan,
+          Point(0, 0) + center,
+          radius * Point(cos(phi1), sin(phi1)) + center,
+          radius * Point(cos(phi2), sin(phi2)) + center);
+    }
+  } else {
+    for (int i = 0, sign = -1; i < 10; ++i, sign *= -1) {
+      const float phi1 = (2 * i - sign) * pi / 10;
+      const float phi2 = (2 * i + sign) * pi / 10;
+
+      tiling.emplace_back(
+          TriangleKind::kDart,
+          radius * Point(cos(phi1), sin(phi1)) + center,
+          Point(0, 0) + center,
+          radius * Point(cos(phi2), sin(phi2)) + center);
+    }
   }
 
   for (int l = 0; l < level; ++l) {

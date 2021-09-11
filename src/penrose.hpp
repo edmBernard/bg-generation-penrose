@@ -21,6 +21,10 @@ enum class TriangleKind {
   kRhombsViolet
 };
 
+inline bool isSmall(TriangleKind kind) {
+  return kind == TriangleKind::kKite || kind == TriangleKind::kRhombsCyan;
+}
+
 struct PenroseTriangle : Triangle {
   TriangleKind color;
 
@@ -61,10 +65,22 @@ std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
         {TriangleKind::kKite, C, A, P},
         {TriangleKind::kDart, P, B, C}};
   } break;
-  case TriangleKind::kRhombsViolet:
-  case TriangleKind::kRhombsCyan:
+  case TriangleKind::kRhombsCyan: {
+    const Point P = A + (B - A) / goldenRatio;
+    return std::vector<PenroseTriangle>{
+        {TriangleKind::kRhombsCyan, C, P, B},
+        {TriangleKind::kRhombsViolet, P, C, A}};
+  } break;
+  case TriangleKind::kRhombsViolet: {
+    const Point Q = B + (A - B) / goldenRatio;
+    const Point R = B + (C - B) / goldenRatio;
+    return std::vector<PenroseTriangle>{
+        {TriangleKind::kRhombsViolet, R, C, A},
+        {TriangleKind::kRhombsViolet, Q, R, B},
+        {TriangleKind::kRhombsCyan, R, Q, A}};
+  } break;
   default:
-    throw std::runtime_error("Unknown penrose color");
+    throw std::runtime_error("Unknown penrose type");
     break;
   }
 }
