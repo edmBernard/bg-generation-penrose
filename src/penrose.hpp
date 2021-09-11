@@ -20,6 +20,14 @@ struct PenroseTriangle : Triangle {
   }
 };
 
+struct PenroseQuadrilateral : Quadrilateral {
+  Color color;
+
+  PenroseQuadrilateral(Color color, Point A, Point B, Point C, Point D)
+      : Quadrilateral(A, B, C, D), color(color) {
+  }
+};
+
 std::string to_string(const PenroseTriangle &triangle) {
   return fmt::format("{}, {}, {}, {}", triangle.color, to_string(triangle.vertices[0]), to_string(triangle.vertices[1]), to_string(triangle.vertices[2]));
 }
@@ -52,11 +60,28 @@ std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
   }
 }
 
+
+PenroseQuadrilateral completeShape(const PenroseTriangle &triangle) {
+    const Point A = triangle.vertices[0];
+    const Point B = triangle.vertices[1];
+    const Point C = triangle.vertices[2];
+    const Point D = A + 2 * ((B-A) + (C-B) * scalar(A-B, C-B) / scalar(C-B, C-B));
+    return {triangle.color, A, B, C, D};
+}
+
 std::vector<PenroseTriangle> deflate(const std::vector<PenroseTriangle> &triangles) {
   std::vector<PenroseTriangle> newList;
   for (const auto triangle : triangles) {
     const auto small = deflate(triangle);
     std::move(small.begin(), small.end(), std::back_inserter(newList));
+  }
+  return newList;
+}
+
+std::vector<PenroseQuadrilateral> completeShape(const std::vector<PenroseTriangle> &triangles) {
+  std::vector<PenroseQuadrilateral> newList;
+  for (const auto triangle : triangles) {
+    newList.push_back(completeShape(triangle));
   }
   return newList;
 }

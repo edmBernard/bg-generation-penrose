@@ -72,6 +72,19 @@ int main(int argc, char *argv[]) try {
   std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;
   fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp.count());
 
+  auto start_temp2 = std::chrono::high_resolution_clock::now();
+  std::vector<PenroseQuadrilateral> quadTiling = completeShape(tiling);
+  std::sort(quadTiling.begin(), quadTiling.end());
+  auto last = std::unique(quadTiling.begin(), quadTiling.end());
+  quadTiling.erase(last, quadTiling.end());
+
+  if (!svg::saveTiling(quadTiling, canvasSize)) {
+    spdlog::error("Failed to save in file");
+    return EXIT_FAILURE;
+  }
+  std::chrono::duration<double, std::milli> elapsed_temp2 = std::chrono::high_resolution_clock::now() - start_temp2;
+  fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp2.count());
+
   return EXIT_SUCCESS;
 
 } catch (const cxxopts::OptionException &e) {
