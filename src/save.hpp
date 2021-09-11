@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <vector>
+#include <random>
 
 namespace svg {
 namespace details {
@@ -33,15 +34,15 @@ struct Strockes {
   float width;
 };
 
-template <typename T, typename Lambda>
-std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::optional<Strockes> strockes, Lambda func) {
+template <typename T, typename Lambda = std::function<bool(T)>>
+std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::optional<Strockes> strockes, Lambda func = [](const T &){ return true; }) {
   std::string s_path;
   for (auto &tr : shape) {
     if (func(tr)) {
       s_path += details::to_path(tr) + " ";
     }
   }
-  std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->r, fill->g, fill->b) : "";
+  std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->r, fill->g, fill->b) : "fill:none";
   std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{}", strockes->r, strockes->g, strockes->b, strockes->width) : "";
   return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
 }
@@ -63,19 +64,23 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   return true;
 }
 
-[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize) {
+[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize, int threshold = 3) {
 
   std::ofstream out("penrose_tiling_q.svg");
   if (!out) {
     spdlog::error("Cannot open output file.");
     return false;
   }
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, 10);
 
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
       << "height='" << canvasSize << "' width='" << canvasSize << "'>\n"
       << "<g id='surface1'>\n";
-  out << to_path(quad, Fill{255, 80, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kRed; });
-  out << to_path(quad, Fill{255, 255, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kYellow; });
+  out << to_path(quad, Fill{255, 80, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kRed ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{255, 255, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kYellow ? distrib(gen) > threshold : false; });
+  out << to_path(quad, {}, Strockes{0, 0, 0, norm(quad[0].vertices[0]-quad[0].vertices[1]) / 100.0f});
   out << "</g>\n</svg>\n";
   return true;
 }

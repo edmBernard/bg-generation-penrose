@@ -74,6 +74,8 @@ int main(int argc, char *argv[]) try {
 
   auto start_temp2 = std::chrono::high_resolution_clock::now();
   std::vector<PenroseQuadrilateral> quadTiling = completeShape(tiling);
+
+  // remove duplicate
   std::sort(quadTiling.begin(), quadTiling.end());
   auto last = std::unique(quadTiling.begin(), quadTiling.end());
   quadTiling.erase(last, quadTiling.end());
