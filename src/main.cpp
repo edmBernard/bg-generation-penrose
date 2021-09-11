@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) try {
   }
 
   auto start_temp = std::chrono::high_resolution_clock::now();
-  if (!svg::saveTiling(tiling, canvasSize)) {
+  if (!svg::saveTiling(tiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
     spdlog::error("Failed to save in file");
     return EXIT_FAILURE;
   }
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) try {
   auto last = std::unique(quadTiling.begin(), quadTiling.end());
   quadTiling.erase(last, quadTiling.end());
 
-  if (!svg::saveTiling(quadTiling, canvasSize)) {
+  if (!svg::saveTiling(quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
     spdlog::error("Failed to save in file");
     return EXIT_FAILURE;
   }

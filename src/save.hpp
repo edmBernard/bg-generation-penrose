@@ -21,6 +21,12 @@ std::string to_path(const Quadrilateral &tr) {
 }
 } // namespace details
 
+struct RGB {
+  int r;
+  int g;
+  int b;
+};
+
 struct Fill {
   int r;
   int g;
@@ -47,7 +53,7 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
 }
 
-[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseTriangle> &triangles, int canvasSize) {
+[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseTriangle> &triangles, int canvasSize, RGB rgb1, RGB rgb2, RGB background) {
 
   std::ofstream out("penrose_tiling.svg");
   if (!out) {
@@ -55,16 +61,19 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
     return false;
   }
 
+  const float strokesWidth = norm(triangles[0].vertices[0]-triangles[0].vertices[1]) / 100.0f;
+
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
-      << "height='" << canvasSize << "' width='" << canvasSize << "'>\n"
+      << fmt::format("height='{}' width='{}'>\n", canvasSize, canvasSize)
+      << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
-  out << to_path(triangles, Fill{255, 80, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kDart; });
-  out << to_path(triangles, Fill{255, 255, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kKite; });
+  out << to_path(triangles, Fill{rgb1.r, rgb1.g, rgb1.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kKite; });
+  out << to_path(triangles, Fill{rgb2.r, rgb2.g, rgb2.b}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kDart; });
   out << "</g>\n</svg>\n";
   return true;
 }
 
-[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize, int threshold = 3) {
+[[nodiscard]] bool saveTiling(const std::vector<penrose::PenroseQuadrilateral> &quad, int canvasSize, RGB rgb1, RGB rgb2, RGB background, int threshold = 6) {
 
   std::ofstream out("penrose_tiling_q.svg");
   if (!out) {
@@ -75,12 +84,15 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(0, 10);
 
+  const float strokesWidth = norm(quad[0].vertices[0]-quad[0].vertices[1]) / 100.0f;
+
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
-      << "height='" << canvasSize << "' width='" << canvasSize << "'>\n"
+      << fmt::format("height='{}' width='{}'>\n", canvasSize, canvasSize)
+      << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
-  out << to_path(quad, Fill{255, 80, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kDart ? distrib(gen) > threshold : false; });
-  out << to_path(quad, Fill{255, 255, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kKite ? distrib(gen) > threshold : false; });
-  out << to_path(quad, {}, Strockes{0, 0, 0, norm(quad[0].vertices[0]-quad[0].vertices[1]) / 100.0f});
+  out << to_path(quad, Fill{rgb1.r, rgb1.g, rgb1.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kKite ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{rgb2.r, rgb2.g, rgb2.b}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kDart ? distrib(gen) > threshold : false; });
+  out << to_path(quad, {}, Strockes{0, 0, 0, strokesWidth});
   out << "</g>\n</svg>\n";
   return true;
 }
