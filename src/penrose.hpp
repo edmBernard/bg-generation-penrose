@@ -12,18 +12,27 @@ namespace penrose {
 constexpr float pi = 3.14159265358979f;
 constexpr float goldenRatio = 1.618033988749895f;
 
-struct PenroseTriangle : Triangle {
-  Color color;
+enum class TriangleKind {
+  // according to this documentation : https://tartarus.org/~simon/20110412-penrose/penrose.xhtml
+  // we use these colors to identify triangles for the deflation algorithm
+  kKite,
+  kDart,
+  kRhombsCyan,
+  kRhombsViolet
+};
 
-  PenroseTriangle(Color color, Point A, Point B, Point C)
+struct PenroseTriangle : Triangle {
+  TriangleKind color;
+
+  PenroseTriangle(TriangleKind color, Point A, Point B, Point C)
       : Triangle(A, B, C), color(color) {
   }
 };
 
 struct PenroseQuadrilateral : Quadrilateral {
-  Color color;
+  TriangleKind color;
 
-  PenroseQuadrilateral(Color color, Point A, Point B, Point C, Point D)
+  PenroseQuadrilateral(TriangleKind color, Point A, Point B, Point C, Point D)
       : Quadrilateral(A, B, C, D), color(color) {
   }
 };
@@ -38,22 +47,22 @@ std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
   const Point C = triangle.vertices[2];
 
   switch (triangle.color) {
-  case Color::kRed: {
+  case TriangleKind::kDart: {
     const Point R = A + (B - A) / goldenRatio;
     const Point Q = B + (C - B) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {kRed, R, A, Q},
-        {kRed, C, A, Q},
-        {kYellow, Q, B, R}};
+        {TriangleKind::kDart, R, A, Q},
+        {TriangleKind::kDart, C, A, Q},
+        {TriangleKind::kKite, Q, B, R}};
   } break;
-  case Color::kYellow: {
+  case TriangleKind::kKite: {
     const Point P = B + (A - B) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {kYellow, C, A, P},
-        {kRed, P, B, C}};
+        {TriangleKind::kKite, C, A, P},
+        {TriangleKind::kDart, P, B, C}};
   } break;
-  case Color::kBlue:
-  case Color::kCyan:
+  case TriangleKind::kRhombsViolet:
+  case TriangleKind::kRhombsCyan:
   default:
     throw std::runtime_error("Unknown penrose color");
     break;

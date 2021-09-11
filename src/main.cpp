@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) try {
     const float phi2 = (2*i + sign) * pi / 10;
 
     tiling.emplace_back(
-      Color::kRed,
+      TriangleKind::kDart,
       radius * Point(cos(phi1), sin(phi1)) + radius * Point(1,1),
       Point(0,0) + radius * Point(1,1),
       radius * Point(cos(phi2), sin(phi2)) + radius * Point(1,1)

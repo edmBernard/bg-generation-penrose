@@ -45,15 +45,6 @@ bool operator<(const Point &lhs, const Point &rhs) {
   return lhs.x < rhs.x;
 }
 
-enum Color {
-  // according to this documentation : https://tartarus.org/~simon/20110412-penrose/penrose.xhtml
-  // we use these colors to identify triangles for the deflation algorithm
-  kYellow,
-  kRed,
-  kBlue,
-  kCyan
-};
-
 struct Triangle {
   std::array<Point, 3> vertices;
 

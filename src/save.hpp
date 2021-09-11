@@ -58,8 +58,8 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
       << "height='" << canvasSize << "' width='" << canvasSize << "'>\n"
       << "<g id='surface1'>\n";
-  out << to_path(triangles, Fill{255, 80, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == Color::kRed; });
-  out << to_path(triangles, Fill{255, 255, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == Color::kYellow; });
+  out << to_path(triangles, Fill{255, 80, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kDart; });
+  out << to_path(triangles, Fill{255, 255, 80}, Strockes{0, 0, 0, 1}, [](const penrose::PenroseTriangle &tr) { return tr.color == penrose::TriangleKind::kKite; });
   out << "</g>\n</svg>\n";
   return true;
 }
@@ -78,8 +78,8 @@ std::string to_path(const std::vector<T> &shape, std::optional<Fill> fill, std::
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
       << "height='" << canvasSize << "' width='" << canvasSize << "'>\n"
       << "<g id='surface1'>\n";
-  out << to_path(quad, Fill{255, 80, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kRed ? distrib(gen) > threshold : false; });
-  out << to_path(quad, Fill{255, 255, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == Color::kYellow ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{255, 80, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kDart ? distrib(gen) > threshold : false; });
+  out << to_path(quad, Fill{255, 255, 80}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return tr.color == penrose::TriangleKind::kKite ? distrib(gen) > threshold : false; });
   out << to_path(quad, {}, Strockes{0, 0, 0, norm(quad[0].vertices[0]-quad[0].vertices[1]) / 100.0f});
   out << "</g>\n</svg>\n";
   return true;
