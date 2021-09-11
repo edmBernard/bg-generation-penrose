@@ -4,8 +4,8 @@
 #include <fmt/format.h>
 
 #include <array>
-#include <string>
 #include <optional>
+#include <string>
 
 struct Point {
   float x;
@@ -62,9 +62,10 @@ namespace svg {
 namespace details {
 
 std::string to_path(const Triangle &tr) {
+  // we don't close the path at the end, this allow to draw border on only 2 sides of the triangle
   return fmt::format("M {} {} L {} {} L {} {}", tr.vertices[2].x, tr.vertices[2].y, tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y);
 }
-}
+} // namespace details
 
 struct Fill {
   int r;
@@ -82,7 +83,7 @@ struct Strockes {
 template <typename T, typename Lambda>
 std::string to_path(const std::vector<T> &triangles, std::optional<Fill> fill, std::optional<Strockes> strockes, Lambda func) {
   std::string s_path;
-  for (auto & tr : triangles) {
+  for (auto &tr : triangles) {
     if (func(tr)) {
       s_path += details::to_path(tr) + " ";
     }
@@ -91,6 +92,5 @@ std::string to_path(const std::vector<T> &triangles, std::optional<Fill> fill, s
   std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{}", strockes->r, strockes->g, strockes->b, strockes->width) : "";
   return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
 }
-
 
 } // namespace svg

@@ -72,22 +72,6 @@ int main(int argc, char *argv[]) try {
   std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;
   fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp.count());
 
-  auto start_temp2 = std::chrono::high_resolution_clock::now();
-  if (!saveTiling_v2(tiling, canvasSize)) {
-    spdlog::error("Failed to save in file");
-    return EXIT_FAILURE;
-  }
-  std::chrono::duration<double, std::milli> elapsed_temp2 = std::chrono::high_resolution_clock::now() - start_temp2;
-  fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp2.count());
-
-  auto start_temp3 = std::chrono::high_resolution_clock::now();
-  if (!saveTiling_v3(tiling, canvasSize)) {
-    spdlog::error("Failed to save in file");
-    return EXIT_FAILURE;
-  }
-  std::chrono::duration<double, std::milli> elapsed_temp3 = std::chrono::high_resolution_clock::now() - start_temp3;
-  fmt::print("Time to save svg: {:.2f} ms \n", elapsed_temp3.count());
-
   return EXIT_SUCCESS;
 
 } catch (const cxxopts::OptionException &e) {
