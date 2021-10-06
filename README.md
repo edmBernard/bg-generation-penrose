@@ -31,7 +31,7 @@ cd build
 # configure make with vcpkg toolchain
 cmake .. -DCMAKE_TOOLCHAIN_FILE=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake
 # on Windows : cmake .. -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake
-cmake.exe --build . --config Release
+cmake --build . --config Release
 ```
 
 the server executable is named `bg-generation-penrose`
