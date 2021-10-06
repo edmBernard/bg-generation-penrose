@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 #**************************************************************************************************
 # Project *****************************************************************************************
 project(bg-generation-penrose
-        HOMEPAGE_URL https://github.com/edmBernard/bg-generation-penrose]
+        HOMEPAGE_URL https://github.com/edmBernard/bg-generation-penrose
         LANGUAGES CXX)
 
 #**************************************************************************************************
