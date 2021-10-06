@@ -1,8 +1,10 @@
-project(bg-generation-penrose)
+cmake_minimum_required(VERSION 3.21)
 
 #**************************************************************************************************
-# General cMake settings **************************************************************************
-cmake_minimum_required(VERSION 3.17)
+# Project *****************************************************************************************
+project(bg-generation-penrose
+        HOMEPAGE_URL https://github.com/edmBernard/bg-generation-penrose]
+        LANGUAGES CXX)
 
 #**************************************************************************************************
 # Find Package ************************************************************************************
@@ -23,12 +25,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # endforeach()
 
 #**************************************************************************************************
-# Set compiler ************************************************************************************
+# Set compiler Flags ******************************************************************************
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  add_compile_options(/std:c++latest /Oy /utf-8)
+  add_compile_options(/Oy /utf-8)
 else()
-  add_compile_options(-std=c++2a -fPIC -O3 -fno-omit-frame-pointer)
+  add_compile_options(-fPIC -O3 -fno-omit-frame-pointer)
 endif()
 
 #**************************************************************************************************
