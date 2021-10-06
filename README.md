@@ -1,4 +1,4 @@
-# bg-generation-penrose
+# bg-generation-penrose [![C++ CI](https://github.com/edmBernard/bg-generation-penrose/actions/workflows/cpp.yml/badge.svg)](https://github.com/edmBernard/bg-generation-penrose/actions/workflows/cpp.yml)
 
 Small executable that generate [Penrose Tiling](https://en.wikipedia.org/wiki/Penrose_tiling) and save it in svg.
 
