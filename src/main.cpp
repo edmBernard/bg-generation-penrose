@@ -89,8 +89,8 @@ int main(int argc, char *argv[]) try {
     }
   }
 
-  for (int l = 0; l < level; ++l) {
-    tiling = deflate(tiling);
+  for (int l = 0; l < 5; ++l) {
+    tiling = deflate(tiling, l);
   }
 
   std::vector<PenroseQuadrilateral> quadTiling = completeShape(tiling);
