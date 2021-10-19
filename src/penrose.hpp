@@ -39,18 +39,20 @@ inline bool isSmall(TriangleKind kind) {
 
 struct PenroseTriangle : Triangle {
   TriangleKind color;
+  bool flag;
 
-  PenroseTriangle(TriangleKind color, Point A, Point B, Point C)
-      : Triangle(A, B, C), color(color) {
+  PenroseTriangle(TriangleKind color, Point A, Point B, Point C, bool flag = false)
+      : Triangle(A, B, C), color(color), flag(flag) {
   }
 
 };
 
 struct PenroseQuadrilateral : Quadrilateral {
   TriangleKind color;
+  bool flag;
 
-  PenroseQuadrilateral(TriangleKind color, Point A, Point B, Point C, Point D)
-      : Quadrilateral(A, B, C, D), color(color) {
+  PenroseQuadrilateral(TriangleKind color, Point A, Point B, Point C, Point D, bool flag)
+      : Quadrilateral(A, B, C, D), color(color), flag(flag) {
   }
 };
 
@@ -68,29 +70,29 @@ std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
     const Point R = A + (B - A) / goldenRatio;
     const Point Q = B + (C - B) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {TriangleKind::kDart, R, A, Q},
-        {TriangleKind::kDart, C, A, Q},
-        {TriangleKind::kKite, Q, B, R}};
+        {TriangleKind::kDart, R, A, Q, triangle.flag},
+        {TriangleKind::kDart, C, A, Q, triangle.flag},
+        {TriangleKind::kKite, Q, B, R, triangle.flag}};
   } break;
   case TriangleKind::kKite: {
     const Point P = B + (A - B) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {TriangleKind::kKite, C, A, P},
-        {TriangleKind::kDart, P, B, C}};
+        {TriangleKind::kKite, C, A, P, triangle.flag},
+        {TriangleKind::kDart, P, B, C, triangle.flag}};
   } break;
   case TriangleKind::kRhombsCyan: {
     const Point P = A + (B - A) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {TriangleKind::kRhombsCyan, C, P, B},
-        {TriangleKind::kRhombsViolet, P, C, A}};
+        {TriangleKind::kRhombsCyan, C, P, B, triangle.flag},
+        {TriangleKind::kRhombsViolet, P, C, A, triangle.flag}};
   } break;
   case TriangleKind::kRhombsViolet: {
     const Point Q = B + (A - B) / goldenRatio;
     const Point R = B + (C - B) / goldenRatio;
     return std::vector<PenroseTriangle>{
-        {TriangleKind::kRhombsViolet, R, C, A},
-        {TriangleKind::kRhombsViolet, Q, R, B},
-        {TriangleKind::kRhombsCyan, R, Q, A}};
+        {TriangleKind::kRhombsViolet, R, C, A, triangle.flag},
+        {TriangleKind::kRhombsViolet, Q, R, B, triangle.flag},
+        {TriangleKind::kRhombsCyan, R, Q, A, triangle.flag}};
   } break;
   default:
     throw std::runtime_error("Unknown penrose type");
@@ -112,7 +114,7 @@ PenroseQuadrilateral completeShape(const PenroseTriangle &triangle) {
     const Point B = triangle.vertices[1];
     const Point C = triangle.vertices[2];
     const Point D = A + 2 * ((B-A) + (C-B) * scalar(A-B, C-B) / scalar(C-B, C-B));
-    return {triangle.color, A, B, C, D};
+    return {triangle.color, A, B, C, D, triangle.flag};
 }
 
 std::vector<PenroseQuadrilateral> completeShape(const std::vector<PenroseTriangle> &triangles) {
@@ -129,8 +131,8 @@ std::vector<PenroseTriangle> splitShape(const PenroseQuadrilateral &triangle) {
     const Point C = triangle.vertices[2];
     const Point D = triangle.vertices[3];
     return {
-      {triangle.color, A, B, C},
-      {triangle.color, D, B, C}
+      {triangle.color, A, B, C, triangle.flag},
+      {triangle.color, D, B, C, triangle.flag}
     };
 }
 
@@ -138,14 +140,14 @@ std::vector<PenroseTriangle> splitShape(const std::vector<PenroseQuadrilateral> 
   std::vector<PenroseTriangle> newList;
   for (const auto &quad : quadrilaterals) {
     const auto triangles = splitShape(quad);
-    std::move(newList.begin(), newList.end(), std::back_inserter(newList));
+    std::move(triangles.begin(), triangles.end(), std::back_inserter(newList));
   }
   return newList;
 }
 
 std::vector<PenroseQuadrilateral> deflateAndMerge(const std::vector<PenroseTriangle> &triangles, int level) {
   std::vector<PenroseTriangle> tiling = deflate(triangles);
-  for (int l = 0; l < level; ++l) {
+  for (int l = 1; l < level; ++l) {
     tiling = deflate(tiling);
   }
 
@@ -158,5 +160,16 @@ std::vector<PenroseQuadrilateral> deflateAndMerge(const std::vector<PenroseTrian
 
   return quadTiling;
 }
+
+void setRandomFlag(std::vector<PenroseQuadrilateral> &quadrilaterals, int threshold = 5) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, 10);
+  for (auto &quad : quadrilaterals) {
+    quad.flag = distrib(gen) >= threshold ? quad.flag : !quad.flag;
+  }
+}
+
+
 
 } // namespace penrose

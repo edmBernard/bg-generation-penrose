@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) try {
     ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("3"))
     ("o,output", "Output filename (.svg)", cxxopts::value<std::string>())
     ("rhombus", "Use Rhombus (P3) form otherwise it use Kite and Dart (P2)", cxxopts::value<bool>())
+    ("step", "step of the 2 color", cxxopts::value<int>()->default_value("0"))
     ;
   // clang-format on
   options.parse_positional({"output", "level"});
@@ -46,10 +47,12 @@ int main(int argc, char *argv[]) try {
   }
   if (!clo.count("output")) {
     spdlog::error("Output filename is required");
+    fmt::print("{}", options.help());
     return EXIT_FAILURE;
   }
 
   const int level = clo["level"].as<int>();
+  const int step = clo["step"].as<int>();
   const std::string filename = clo["output"].as<std::string>();
 
   // =================================================================================================
@@ -89,11 +92,26 @@ int main(int argc, char *argv[]) try {
     }
   }
 
-  std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, 4);
+  if (step != 0) {
+    std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, step);
+    setRandomFlag(quadTiling, 5);
+    tiling = splitShape(quadTiling);
+    quadTiling = deflateAndMerge(tiling, level - step);
 
-  if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
-    spdlog::error("Failed to save in file");
-    return EXIT_FAILURE;
+    if (!svg::saveTiling(filename, quadTiling, canvasSize,
+                        svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70},
+                        svg::RGB{255, 216, 102}, svg::RGB{252, 152, 103},
+                        svg::RGB{30, 30, 30})) {
+      spdlog::error("Failed to save in file");
+      return EXIT_FAILURE;
+    }
+  } else {
+    std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);
+
+    if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
+      spdlog::error("Failed to save in file");
+      return EXIT_FAILURE;
+    }
   }
   std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;
   fmt::print("Execution time: {:.2f} ms \n", elapsed_temp.count());
