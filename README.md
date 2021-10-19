@@ -1,4 +1,4 @@
-# bg-generation-penrose
+# bg-generation-penrose [![C++ CI](https://github.com/edmBernard/bg-generation-penrose/actions/workflows/cpp.yml/badge.svg)](https://github.com/edmBernard/bg-generation-penrose/actions/workflows/cpp.yml)
 
 Small executable that generate [Penrose Tiling](https://en.wikipedia.org/wiki/Penrose_tiling) and save it in svg.
 
@@ -31,7 +31,7 @@ cd build
 # configure make with vcpkg toolchain
 cmake .. -DCMAKE_TOOLCHAIN_FILE=${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake
 # on Windows : cmake .. -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake
-cmake.exe --build . --config Release
+cmake --build . --config Release
 ```
 
 the server executable is named `bg-generation-penrose`
