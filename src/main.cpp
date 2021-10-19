@@ -93,12 +93,12 @@ int main(int argc, char *argv[]) try {
   }
 
   if (step != 0) {
-    std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, step);
-    setRandomFlag(quadTiling, 5);
-    tiling = splitShape(quadTiling);
-    quadTiling = deflateAndMerge(tiling, level - step);
+    std::vector<PenroseQuadrilateral> quadTilingStep1 = deflateAndMerge(tiling, step);
+    setRandomFlag(quadTilingStep1, 5);
+    tiling = splitShape(quadTilingStep1);
+    std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
-    if (!svg::saveTiling(filename, quadTiling, canvasSize,
+    if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
                         svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70},
                         svg::RGB{255, 216, 102}, svg::RGB{252, 152, 103},
                         svg::RGB{30, 30, 30})) {

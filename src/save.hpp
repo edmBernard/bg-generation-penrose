@@ -161,7 +161,10 @@ std::string to_path(
   return true;
 }
 
-[[nodiscard]] bool saveTiling(const std::string &filename, const std::vector<penrose::PenroseQuadrilateral> &quads, int canvasSize,
+[[nodiscard]] bool saveTiling(const std::string &filename,
+                              const std::vector<penrose::PenroseQuadrilateral> &quadsStep1,
+                              const std::vector<penrose::PenroseQuadrilateral> &quadsStep2,
+                              int canvasSize,
                               RGB rgbSmall1, RGB rgbBig1,
                               RGB rgbSmall2, RGB rgbBig2,
                               RGB background, int threshold = 6) {
@@ -180,13 +183,15 @@ std::string to_path(
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
 
-  const float strokesWidth = std::sqrt(norm(quads[0].vertices[0] - quads[0].vertices[1])) / 15.0f;
+  const float strokesWidthStep2 = std::sqrt(norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1])) / 15.0f;
+  const float strokesWidthStep1 = std::sqrt(norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1])) / 15.0f;
 
-  out << to_path(quads, Fill{rgbSmall1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) > threshold : false; });
-  out << to_path(quads, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) > threshold : false; });
-  out << to_path(quads, Fill{rgbSmall2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && !tr.flag ? distrib(gen) > threshold : false; });
-  out << to_path(quads, Fill{rgbBig2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && !tr.flag ? distrib(gen) > threshold : false; });
-  out << to_path(quads, {}, Strockes{0, 0, 0, strokesWidth});
+  out << to_path(quadsStep2, Fill{rgbSmall1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) > threshold : false; });
+  out << to_path(quadsStep2, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) > threshold : false; });
+  out << to_path(quadsStep2, Fill{rgbSmall2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && !tr.flag ? distrib(gen) > threshold : false; });
+  out << to_path(quadsStep2, Fill{rgbBig2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && !tr.flag ? distrib(gen) > threshold : false; });
+  out << to_path(quadsStep2, {}, Strockes{0, 0, 0, strokesWidthStep2});
+  out << to_path(quadsStep1, {}, Strockes{0, 0, 0, strokesWidthStep1});
   out << "</g>\n</svg>\n";
   return true;
 }
