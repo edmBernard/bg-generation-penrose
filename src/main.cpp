@@ -35,7 +35,8 @@ int main(int argc, char *argv[]) try {
     ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("3"))
     ("o,output", "Output filename (.svg)", cxxopts::value<std::string>())
     ("rhombus", "Use Rhombus (P3) form otherwise it use Kite and Dart (P2)", cxxopts::value<bool>())
-    ("step", "step of the 2 color", cxxopts::value<int>()->default_value("0"))
+    ("step", "Step of the 2 color", cxxopts::value<int>()->default_value("0"))
+    ("threshold", "Threshold for holes [0, 10] (0: no holes)", cxxopts::value<int>()->default_value("6"))
     ;
   // clang-format on
   options.parse_positional({"output", "level"});
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) try {
 
   const int level = clo["level"].as<int>();
   const int step = clo["step"].as<int>();
+  const int threshold = clo["threshold"].as<int>();
   const std::string filename = clo["output"].as<std::string>();
 
   // =================================================================================================
@@ -101,14 +103,14 @@ int main(int argc, char *argv[]) try {
     if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
                         svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70},
                         svg::RGB{255, 216, 102}, svg::RGB{252, 152, 103},
-                        svg::RGB{30, 30, 30})) {
+                        svg::RGB{30, 30, 30}, threshold)) {
       spdlog::error("Failed to save in file");
       return EXIT_FAILURE;
     }
   } else {
     std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);
 
-    if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
+    if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
       spdlog::error("Failed to save in file");
       return EXIT_FAILURE;
     }
