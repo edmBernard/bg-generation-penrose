@@ -89,16 +89,7 @@ int main(int argc, char *argv[]) try {
     }
   }
 
-  for (int l = 0; l < 5; ++l) {
-    tiling = deflate(tiling, l);
-  }
-
-  std::vector<PenroseQuadrilateral> quadTiling = completeShape(tiling);
-
-  // remove duplicate
-  std::sort(quadTiling.begin(), quadTiling.end());
-  auto last = std::unique(quadTiling.begin(), quadTiling.end());
-  quadTiling.erase(last, quadTiling.end());
+  std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, 4);
 
   if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30})) {
     spdlog::error("Failed to save in file");
