@@ -32,14 +32,14 @@ int main(int argc, char *argv[]) try {
   // clang-format off
   options.add_options()
     ("h,help", "Print help")
-    ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("3"))
+    ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("11"))
     ("o,output", "Output filename (.svg)", cxxopts::value<std::string>())
     ("rhombus", "Use Rhombus (P3) form otherwise it use Kite and Dart (P2)", cxxopts::value<bool>())
     ("step", "Step of the 2 color", cxxopts::value<int>()->default_value("0"))
-    ("threshold", "Threshold for holes [0, 10] (0: no holes)", cxxopts::value<int>()->default_value("6"))
+    ("threshold", "Threshold for holes [0, 10] (0: no holes)", cxxopts::value<int>()->default_value("7"))
     ;
   // clang-format on
-  options.parse_positional({"output", "level"});
+  options.parse_positional({"output", "level", "step"});
   auto clo = options.parse(argc, argv);
 
   if (clo.count("help")) {
