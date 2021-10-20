@@ -49,8 +49,8 @@ jobs:
       run: cmake --build . --config Release
     - name: run dart
       run: ./Artifact/bg-generation-penrose Artifact/dart_11.svg 11
-    - name: run dart
-      run: ./Artifact/bg-generation-penrose Artifact/dart_11_7.svg 11 7
+    - name: run dart with step
+      run: ./Artifact/bg-generation-penrose Artifact/dart_11_7.svg --step 7 --level 11 --threshold 6
     - name: run rhombus
       run: ./Artifact/bg-generation-penrose --rhombus Artifact/rhombus_11_7.svg 11 7
     - uses: actions/upload-artifact@v1

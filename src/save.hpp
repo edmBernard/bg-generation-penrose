@@ -149,7 +149,7 @@ std::string to_path(
       << "<g id='surface1'>\n";
 
   const float strokesWidthStep2 = std::sqrt(norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1])) / 15.0f;
-  const float strokesWidthStep1 = std::sqrt(norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1])) / 15.0f;
+  const float strokesWidthStep1 = std::sqrt(norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1])) / 20.0f;
 
   out << to_path(quadsStep2, Fill{rgbSmall1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
   out << to_path(quadsStep2, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
