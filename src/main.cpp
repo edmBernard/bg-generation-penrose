@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) try {
   std::vector<PenroseTriangle> tiling;
 
   const int canvasSize = 2000;
-  const float radius = canvasSize;
+  const float radius = canvasSize * 0.8f;
   const Point center = canvasSize / 2.f * Point(1, 1);
   // Tiling initialisation
   if (clo.count("rhombus")) {
@@ -101,9 +101,9 @@ int main(int argc, char *argv[]) try {
     std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
     if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
-                        svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70},
-                        svg::RGB{255, 216, 102}, svg::RGB{252, 152, 103},
-                        svg::RGB{30, 30, 30}, threshold)) {
+                        svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
+                        svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
+                        svg::RGB{11, 24, 68}, threshold)) {
       spdlog::error("Failed to save in file");
       return EXIT_FAILURE;
     }
