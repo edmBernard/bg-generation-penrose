@@ -22,7 +22,6 @@ namespace penrose {
 
 constexpr float pi = 3.14159265358979f;
 constexpr float goldenRatio = 1.618033988749895f;
-constexpr int levelToFix = 6;
 
 enum class TriangleKind {
   // according to this documentation : https://tartarus.org/~simon/20110412-penrose/penrose.xhtml
