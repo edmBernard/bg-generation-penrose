@@ -100,10 +100,10 @@ int main(int argc, char *argv[]) try {
     tiling = splitShape(quadTilingStep1);
     std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
-    if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
+    if (!svg::saveTiling(filename, addMargin(quadTilingStep1, 5.f), addMargin(quadTilingStep2, 5.f), canvasSize,
                         svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
                         svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
-                        svg::RGB{11, 24, 68}, threshold)) {
+                        svg::RGB{6, 12, 34}, threshold)) {
       spdlog::error("Failed to save in file");
       return EXIT_FAILURE;
     }

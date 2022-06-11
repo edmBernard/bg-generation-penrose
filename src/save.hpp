@@ -151,12 +151,12 @@ std::string to_path(
   const float strokesWidthStep2 = norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1]) / 15.0f;
   const float strokesWidthStep1 = norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1]) / 20.0f;
 
-  out << to_path(quadsStep2, Fill{rgbSmall1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, Fill{rgbSmall2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, Fill{rgbBig2}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, {}, Strockes{0, 0, 0, strokesWidthStep2});
-  out << to_path(quadsStep1, {}, Strockes{0, 0, 0, strokesWidthStep1});
+  out << to_path(quadsStep2, {}, Strockes{rgbSmall1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
+  out << to_path(quadsStep2, {}, Strockes{rgbBig1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
+  out << to_path(quadsStep2, {}, Strockes{rgbSmall2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
+  out << to_path(quadsStep2, {}, Strockes{rgbBig2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
+  // out << to_path(quadsStep2, {}, Strockes{0, 0, 0, strokesWidthStep2});
+  // out << to_path(quadsStep1, {}, Strockes{0, 0, 0, strokesWidthStep1});
   out << "</g>\n</svg>\n";
   return true;
 }
