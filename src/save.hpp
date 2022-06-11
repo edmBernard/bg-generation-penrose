@@ -89,7 +89,7 @@ std::string to_path(
     return false;
   }
 
-  const float strokesWidth = std::sqrt(norm(triangles[0].vertices[0] - triangles[0].vertices[1])) / 15.0f;
+  const float strokesWidth = std::sqrt(normSq(triangles[0].vertices[0] - triangles[0].vertices[1])) / 15.0f;
 
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
       << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size", canvasSize))
@@ -113,7 +113,7 @@ std::string to_path(
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(0, 10);
 
-  const float strokesWidth = std::sqrt(norm(quad[0].vertices[0]-quad[0].vertices[1])) / 15.0f;
+  const float strokesWidth = std::sqrt(normSq(quad[0].vertices[0]-quad[0].vertices[1])) / 30.0f;
 
   out << "<svg xmlns='http://www.w3.org/2000/svg' "
       << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size",canvasSize))
@@ -148,8 +148,8 @@ std::string to_path(
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
 
-  const float strokesWidthStep2 = std::sqrt(norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1])) / 15.0f;
-  const float strokesWidthStep1 = std::sqrt(norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1])) / 20.0f;
+  const float strokesWidthStep2 = norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1]) / 15.0f;
+  const float strokesWidthStep1 = norm(quadsStep1[0].vertices[0] - quadsStep1[0].vertices[1]) / 20.0f;
 
   out << to_path(quadsStep2, Fill{rgbSmall1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
   out << to_path(quadsStep2, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr) { return !isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });

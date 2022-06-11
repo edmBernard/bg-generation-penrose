@@ -56,7 +56,8 @@ struct PenroseQuadrilateral : Quadrilateral {
 };
 
 std::string to_string(const PenroseTriangle &triangle) {
-  return fmt::format("{}, {}, {}, {}", triangle.color, to_string(triangle.vertices[0]), to_string(triangle.vertices[1]), to_string(triangle.vertices[2]));
+  // return fmt::format("{}, {}, {}, {}", triangle.color, to_string(triangle.vertices[0]), to_string(triangle.vertices[1]), to_string(triangle.vertices[2]));
+  return "";
 }
 
 std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
@@ -140,6 +141,29 @@ std::vector<PenroseTriangle> splitShape(const std::vector<PenroseQuadrilateral> 
   for (const auto &quad : quadrilaterals) {
     const auto triangles = splitShape(quad);
     std::move(triangles.begin(), triangles.end(), std::back_inserter(newList));
+  }
+  return newList;
+}
+
+Point moveMargin(const Point& A, const Point& B, const Point& C, const Point& D, const float margin) {
+  // D is here only to indicate margin direction
+  const Point AO = (C-A) / norm(C-A) + (B-A) / norm(B-A);
+  const float direction = scalar(AO, D-A) > 0.f ? 1.f : -1.f;
+  const Point u = turn90(C-A);
+  const float pr = scalar(AO / norm(AO), u / norm(u));
+  const Point Am = A + AO / norm(AO) * margin / std::abs(pr) * direction;
+  const float finalMarge = scalar(Am-A, u / norm(u));
+  return Am;
+}
+
+std::vector<PenroseQuadrilateral> addMargin(const std::vector<PenroseQuadrilateral> &quadrilaterals, const float margin) {
+  std::vector<PenroseQuadrilateral> newList;
+  for (const auto& quad : quadrilaterals) {
+    const Point A = quad.vertices[0];
+    const Point B = quad.vertices[1];
+    const Point C = quad.vertices[2];
+    const Point D = quad.vertices[3];
+    newList.emplace_back(quad.color, moveMargin(A, B, C, D, margin), moveMargin(B, D, A, C, margin), moveMargin(C, A, D, B, margin), moveMargin(D, C, B, A, margin), quad.flag);
   }
   return newList;
 }

@@ -45,11 +45,17 @@ Point operator/(const Point &pt, float value) {
 float scalar(const Point &pt1, const Point &pt2) {
   return pt1.x * pt2.x + pt1.y * pt2.y;
 }
-float norm(const Point &pt1) {
+float normSq(const Point &pt1) {
   return pt1.x * pt1.x + pt1.y * pt1.y;
 }
+float norm(const Point &pt1) {
+  return std::sqrt(pt1.x * pt1.x + pt1.y * pt1.y);
+}
+Point turn90(const Point &pt) {
+  return {- pt.y, pt.x};
+}
 bool operator==(const Point &lhs, const Point &rhs) {
-  return norm(lhs - rhs) < epsilon;
+  return normSq(lhs - rhs) < epsilon;
 }
 bool operator<(const Point &lhs, const Point &rhs) {
   if (abs(lhs.x - rhs.x) < epsilon)

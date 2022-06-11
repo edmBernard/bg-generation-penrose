@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) try {
   } else {
     std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);
 
-    if (!svg::saveTiling(filename, quadTiling, canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
+    if (!svg::saveTiling(filename, addMargin(quadTiling, 15.f), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
       spdlog::error("Failed to save in file");
       return EXIT_FAILURE;
     }
