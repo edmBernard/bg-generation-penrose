@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) try {
     ("l,level", "Number of subdivision done", cxxopts::value<int>()->default_value("11"))
     ("o,output", "Output filename (.svg)", cxxopts::value<std::string>())
     ("rhombus", "Use Rhombus (P3) form otherwise it use Kite and Dart (P2)", cxxopts::value<bool>())
+    ("neon", "Print only the shape border", cxxopts::value<bool>())
     ("step", "Step of the 2 color", cxxopts::value<int>()->default_value("0"))
     ("threshold", "Threshold for holes [0, 10] (0: no holes)", cxxopts::value<int>()->default_value("7"))
     ;
@@ -55,6 +56,7 @@ int main(int argc, char *argv[]) try {
   const int level = clo["level"].as<int>();
   const int step = clo["step"].as<int>();
   const int threshold = clo["threshold"].as<int>();
+  const bool neon = clo["neon"].as<bool>();
   const std::string filename = clo["output"].as<std::string>();
 
   // =================================================================================================
@@ -100,19 +102,41 @@ int main(int argc, char *argv[]) try {
     tiling = splitShape(quadTilingStep1);
     std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
-    if (!svg::saveTiling(filename, addMargin(quadTilingStep1, 5.f), addMargin(quadTilingStep2, 5.f), canvasSize,
-                        svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
-                        svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
-                        svg::RGB{6, 12, 34}, threshold)) {
-      spdlog::error("Failed to save in file");
-      return EXIT_FAILURE;
+    if (neon) {
+      const float margin = std::max(3.f, norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 30.0f);
+
+      if (!svg::saveTilingNeon(filename, addMargin(quadTilingStep2, margin), canvasSize,
+                          svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
+                          svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
+                          svg::RGB{17, 37, 106}, svg::RGB{6, 12, 34}, threshold)) {
+        spdlog::error("Failed to save in file");
+        return EXIT_FAILURE;
+      }
+    } else {
+      if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
+                          svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
+                          svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
+                          svg::RGB{6, 12, 34}, threshold)) {
+        spdlog::error("Failed to save in file");
+        return EXIT_FAILURE;
+      }
     }
+
+
   } else {
     std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);
 
-    if (!svg::saveTiling(filename, addMargin(quadTiling, 15.f), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
-      spdlog::error("Failed to save in file");
-      return EXIT_FAILURE;
+    if (neon) {
+      const float margin = std::max(3.f, norm(quadTiling[0].vertices[0] - quadTiling[0].vertices[1]) / 15.0f);
+      if (!svg::saveTilingNeon(filename, addMargin(quadTiling, margin), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
+        spdlog::error("Failed to save in file");
+        return EXIT_FAILURE;
+      }
+    } else {
+      if (!svg::saveTiling(filename, addMargin(quadTiling, 15.f), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
+        spdlog::error("Failed to save in file");
+        return EXIT_FAILURE;
+      }
     }
   }
   std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;

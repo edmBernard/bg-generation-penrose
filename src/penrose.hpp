@@ -55,11 +55,6 @@ struct PenroseQuadrilateral : Quadrilateral {
   }
 };
 
-std::string to_string(const PenroseTriangle &triangle) {
-  // return fmt::format("{}, {}, {}, {}", triangle.color, to_string(triangle.vertices[0]), to_string(triangle.vertices[1]), to_string(triangle.vertices[2]));
-  return "";
-}
-
 std::vector<PenroseTriangle> deflate(const PenroseTriangle &triangle) {
   const Point A = triangle.vertices[0];
   const Point B = triangle.vertices[1];
@@ -152,7 +147,6 @@ Point moveMargin(const Point& A, const Point& B, const Point& C, const Point& D,
   const Point u = turn90(C-A);
   const float pr = scalar(AO / norm(AO), u / norm(u));
   const Point Am = A + AO / norm(AO) * margin / std::abs(pr) * direction;
-  const float finalMarge = scalar(Am-A, u / norm(u));
   return Am;
 }
 
