@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) try {
       if (!svg::saveTilingNeon(filename, addMargin(quadTilingStep2, margin), canvasSize,
                           svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
                           svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
-                          svg::RGB{17, 37, 106}, svg::RGB{6, 12, 34}, threshold)) {
+                          svg::RGB{16, 48, 120}, svg::RGB{6, 12, 34}, threshold)) {
         spdlog::error("Failed to save in file");
         return EXIT_FAILURE;
       }
