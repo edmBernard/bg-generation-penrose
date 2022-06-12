@@ -30,9 +30,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  add_compile_options(/Oy /utf-8)
+  add_compile_options(/Oy /utf-8 /Zc:__cplusplus /DUNICODE /D_UNICODE)
 else()
-  add_compile_options(-fPIC -O3 -fno-omit-frame-pointer)
+  add_compile_options(-fPIC -O3)
 endif()
 
 #**************************************************************************************************
@@ -44,4 +44,4 @@ SET(SOURCES
 #**************************************************************************************************
 # Make configuration ******************************************************************************
 add_executable(bg-generation-penrose ${SOURCES})
-target_link_libraries(bg-generation-penrose fmt::fmt spdlog::spdlog)
+target_link_libraries(bg-generation-penrose fmt::fmt-header-only spdlog::spdlog_header_only cxxopts::cxxopts)
