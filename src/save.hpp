@@ -161,6 +161,8 @@ std::string to_path(
   return true;
 }
 
+enum class IsHole : bool { Yes, No };
+
 [[nodiscard]] bool saveTilingNeon(const std::string &filename,
                               const std::vector<penrose::PenroseQuadrilateral> &quadsStep2,
                               int canvasSize,
@@ -184,17 +186,17 @@ std::string to_path(
 
   const float strokesWidthStep2 = norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1]) / 45.0f;
 
-  std::vector<bool> isHole(quadsStep2.size(), false);
+  std::vector<IsHole> isHole(quadsStep2.size(), IsHole::No);
   for (auto& tag : isHole)
   {
-    tag = distrib(gen) >= threshold;
+    tag = distrib(gen) >= threshold ? IsHole::Yes : IsHole::No;
   }
-  out << to_path(quadsStep2, {}, Strockes{rgbSmall1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && tr.flag && !isHole[idx]; });
-  out << to_path(quadsStep2, {}, Strockes{rgbBig1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && tr.flag && !isHole[idx]; });
-  out << to_path(quadsStep2, {}, Strockes{rgbSmall2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && !tr.flag && !isHole[idx]; });
-  out << to_path(quadsStep2, {}, Strockes{rgbBig2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && !tr.flag && !isHole[idx]; });
+  out << to_path(quadsStep2, {}, Strockes{rgbSmall1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, Strockes{rgbBig1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, Strockes{rgbSmall2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, Strockes{rgbBig2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
 
-  out << to_path(quadsStep2, {}, Strockes{rgbHole, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isHole[idx]; });
+  out << to_path(quadsStep2, {}, Strockes{rgbHole, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isHole[idx] == IsHole::Yes; });
 
   out << "</g>\n</svg>\n";
   return true;
