@@ -13,6 +13,7 @@
 #include <penrose.hpp>
 
 #include <spdlog/spdlog.h>
+#include <fmt/ostream.h>
 
 #include <fstream>
 #include <random>
@@ -35,48 +36,56 @@ struct RGB {
   int r;
   int g;
   int b;
+
+  friend std::ostream &operator<<(std::ostream &os, const RGB &rgb ) {
+    return os << fmt::format("rgb({},{},{})", rgb.r, rgb.b, rgb.b);
+  }
 };
 
 struct Fill {
-  int r;
-  int g;
-  int b;
+  RGB color;
 
   Fill(int r, int g, int b)
-      : r(r), g(g), b(b) {
+      : color{r, g, b} {
   }
 
   Fill(RGB rgb)
-      : r(rgb.r), g(rgb.g), b(rgb.b) {
+      : color{rgb} {
+  }
+
+  friend std::ostream &operator<<(std::ostream &os, const Fill &fill ) {
+    return os << fmt::format("fill:", fill.color);
   }
 };
 
-struct Strockes {
-  int r;
-  int g;
-  int b;
+struct StrokesStyle {
+  RGB color;
   float width;
 
-  Strockes(int r, int g, int b, float width)
-      : r(r), g(g), b(b), width(width) {
+  StrokesStyle(int r, int g, int b, float width)
+      : color{r, g, b}, width(width) {
   }
 
-  Strockes(RGB rgb, float width)
-      : r(rgb.r), g(rgb.g), b(rgb.b), width(width) {
+  StrokesStyle(RGB rgb, float width)
+      : color{rgb}, width(width) {
+  }
+
+  friend std::ostream &operator<<(std::ostream &os, const StrokesStyle &rgb ) {
+    return os << fmt::format("stroke:{};stroke-width:{};stroke-linecap:butt;stroke-linejoin:miter", rgb.color, rgb.width);
   }
 };
 
 template <typename T, typename Lambda = std::function<bool(T, size_t)>>
 std::string to_path(
-    const std::vector<T> &shape, std::optional<Fill> fill, std::optional<Strockes> strockes, Lambda func = [](const T &, size_t) { return true; }) {
+    const std::vector<T> &shape, std::optional<Fill> fill, std::optional<StrokesStyle> strockes, Lambda func = [](const T &, size_t) { return true; }) {
   std::string s_path;
   for (size_t idx = 0; idx < shape.size(); ++idx) {
     if (func(shape[idx], idx)) {
       s_path += details::to_path(shape[idx]) + " ";
     }
   }
-  std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->r, fill->g, fill->b) : "fill:none";
-  std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{};stroke-linecap:butt;stroke-linejoin:miter", strockes->r, strockes->g, strockes->b, strockes->width) : "";
+  std::string s_fill = fill ? fmt::format("fill:rgb({},{},{})", fill->color.r, fill->color.g, fill->color.b) : "fill:none";
+  std::string s_strockes = strockes ? fmt::format("stroke:rgb({},{},{});stroke-width:{};stroke-linecap:butt;stroke-linejoin:miter", strockes->color.r, strockes->color.g, strockes->color.b, strockes->width) : "";
   return fmt::format("<path style='{};{}' d='{}'></path>\n", s_fill, s_strockes, s_path);
 }
 
@@ -95,8 +104,8 @@ std::string to_path(
       << fmt::format("height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n", fmt::arg("size", canvasSize))
       << fmt::format("<rect height='100%' width='100%' fill='rgb({},{},{})'/>\n", background.r, background.g, background.b)
       << "<g id='surface1'>\n";
-  out << to_path(triangles, Fill{rgb1}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr, size_t) { return isSmall(tr.color); });
-  out << to_path(triangles, Fill{rgb2}, Strockes{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr, size_t) { return !isSmall(tr.color); });
+  out << to_path(triangles, Fill{rgb1}, StrokesStyle{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr, size_t) { return isSmall(tr.color); });
+  out << to_path(triangles, Fill{rgb2}, StrokesStyle{0, 0, 0, strokesWidth}, [](const penrose::PenroseTriangle &tr, size_t) { return !isSmall(tr.color); });
   out << "</g>\n</svg>\n";
   return true;
 }
@@ -121,7 +130,7 @@ std::string to_path(
       << "<g id='surface1'>\n";
   out << to_path(quad, Fill{rgb1}, {}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return isSmall(tr.color) ? distrib(gen) >= threshold : false; });
   out << to_path(quad, Fill{rgb2}, {}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return !isSmall(tr.color) ? distrib(gen) >= threshold : false; });
-  out << to_path(quad, {}, Strockes{0, 0, 0, strokesWidth});
+  out << to_path(quad, {}, StrokesStyle{0, 0, 0, strokesWidth});
   out << "</g>\n</svg>\n";
   return true;
 }
@@ -155,8 +164,8 @@ std::string to_path(
   out << to_path(quadsStep2, Fill{rgbBig1}, {}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return !isSmall(tr.color) && tr.flag ? distrib(gen) >= threshold : false; });
   out << to_path(quadsStep2, Fill{rgbSmall2}, {}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
   out << to_path(quadsStep2, Fill{rgbBig2}, {}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return !isSmall(tr.color) && !tr.flag ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, {}, Strockes{0, 0, 0, strokesWidthStep2});
-  out << to_path(quadsStep1, {}, Strockes{0, 0, 0, strokesWidthStep1});
+  out << to_path(quadsStep2, {}, StrokesStyle{0, 0, 0, strokesWidthStep2});
+  out << to_path(quadsStep1, {}, StrokesStyle{0, 0, 0, strokesWidthStep1});
   out << "</g>\n</svg>\n";
   return true;
 }
@@ -191,12 +200,12 @@ enum class IsHole : bool { Yes, No };
   {
     tag = distrib(gen) >= threshold ? IsHole::Yes : IsHole::No;
   }
-  out << to_path(quadsStep2, {}, Strockes{rgbSmall1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
-  out << to_path(quadsStep2, {}, Strockes{rgbBig1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
-  out << to_path(quadsStep2, {}, Strockes{rgbSmall2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
-  out << to_path(quadsStep2, {}, Strockes{rgbBig2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgbSmall1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgbBig1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgbSmall2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgbBig2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return !isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No; });
 
-  out << to_path(quadsStep2, {}, Strockes{rgbHole, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isHole[idx] == IsHole::Yes; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgbHole, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t idx) { return isHole[idx] == IsHole::Yes; });
 
   out << "</g>\n</svg>\n";
   return true;
@@ -224,10 +233,53 @@ enum class IsHole : bool { Yes, No };
 
   const float strokesWidthStep2 = norm(quadsStep2[0].vertices[0] - quadsStep2[0].vertices[1]) / 45.0f;
 
-  out << to_path(quadsStep2, {}, Strockes{rgb1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return isSmall(tr.color) ? distrib(gen) >= threshold : false; });
-  out << to_path(quadsStep2, {}, Strockes{rgb2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return !isSmall(tr.color) ? distrib(gen) >= threshold : false; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgb1, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return isSmall(tr.color) ? distrib(gen) >= threshold : false; });
+  out << to_path(quadsStep2, {}, StrokesStyle{rgb2, strokesWidthStep2}, [&](const penrose::PenroseQuadrilateral &tr, size_t) { return !isSmall(tr.color) ? distrib(gen) >= threshold : false; });
   out << "</g>\n</svg>\n";
   return true;
 }
+
+class Document {
+public:
+  Document(size_t canvasSize, RGB background) {
+    data = fmt::format("<svg xmlns='http://www.w3.org/2000/svg' height='{size}' width='{size}' viewBox='0 0 {size} {size}'>\n"
+                      "<rect height='100%' width='100%' fill='{background}'/>\n"
+                      "<g id='surface1'>\n",
+                      fmt::arg("size", canvasSize),
+                      fmt::arg("background", background)
+      );
+  }
+
+  template <typename T>
+  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle) {
+    data += fmt::format("<path style='{};{}' d='", color, strokeStyle);
+    for (const auto& polygon : polygons)
+      data += details::to_path(polygon) + " ";
+    data += "'></path>\n";
+  }
+
+  template <typename T>
+  void addPolygon(T polygon, RGB color, StrokesStyle strokeStyle) {
+    addPolygon(std::vector<T>{polygon}, color, strokeStyle);
+  }
+
+  std::string getContent() {
+    return data + "</g>\n</svg>\n";
+  }
+
+  bool save(const std::string &filename) {
+    std::ofstream out(filename);
+    if (!out) {
+      spdlog::error("Cannot open output file : {}.", filename);
+      return false;
+    }
+
+    out << getContent();
+    return true;
+  }
+
+private:
+  std::string data;
+};
 
 } // namespace svg

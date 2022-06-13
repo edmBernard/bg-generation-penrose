@@ -105,6 +105,12 @@ int main(int argc, char *argv[]) try {
     if (neon) {
       const float margin = std::max(3.f, norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 30.0f);
 
+      svg::Document doc(canvasSize, svg::RGB{6, 12, 34});
+      doc.addPolygon(quadTilingStep2, svg::RGB{175, 231, 245}, svg::StrokesStyle{svg::RGB{16, 48, 120}, 15});
+      doc.addPolygon(quadTilingStep2[0], svg::RGB{175, 231, 245}, svg::StrokesStyle{svg::RGB{16, 48, 120}, 15});
+      fmt::print(doc.getContent());
+      doc.save("toto.svg");
+
       if (!svg::saveTilingNeon(filename, addMargin(quadTilingStep2, margin), canvasSize,
                           svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
                           svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
