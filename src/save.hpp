@@ -18,6 +18,7 @@
 #include <fstream>
 #include <random>
 #include <vector>
+#include <type_traits>
 
 namespace svg {
 namespace details {
@@ -251,11 +252,19 @@ public:
   }
 
   template <typename T>
-  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle) {
+  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle, std::function<bool(const std::type_identity_t<T>&, size_t)> func = [](const T &, size_t){ return true; }) {
     data += fmt::format("<path style='{};{}' d='", color, strokeStyle);
-    for (const auto& polygon : polygons)
-      data += details::to_path(polygon) + " ";
+    for (size_t idx = 0; idx < polygons.size(); ++idx) {
+      const T& polygon = polygons[idx];
+      if (func(polygon, idx))
+        data += details::to_path(polygons[idx]) + " ";
+    }
     data += "'></path>\n";
+  }
+
+  template <typename T>
+  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle, std::function<bool(const std::type_identity_t<T>&)> func) {
+    addPolygon(polygons, color, strokeStyle, [](T, size_t){ return func(T); });
   }
 
   template <typename T>
