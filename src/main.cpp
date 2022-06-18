@@ -96,10 +96,17 @@ int main(int argc, char *argv[]) try {
     }
   }
 
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(0, 10);
+
+  svg::Document doc(canvasSize, svg::RGB{6, 12, 34});
+
   if (step != 0) {
     std::vector<PenroseQuadrilateral> quadTilingStep1 = deflateAndMerge(tiling, step);
     setRandomFlag(quadTilingStep1, 5);
     tiling = splitShape(quadTilingStep1);
+
     std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
     if (neon) {
@@ -108,52 +115,41 @@ int main(int argc, char *argv[]) try {
       quadTilingStep2 = addMargin(quadTilingStep2, margin);
       const float strokesWidth = norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 45.0f;
 
-      std::random_device rd;
-      std::mt19937 gen(rd());
-      std::uniform_int_distribution<> distrib(0, 10);
+
       std::vector<svg::IsHole> isHole(quadTilingStep2.size());
       for (auto& tag : isHole)
       {
         tag = distrib(gen) >= threshold ? svg::IsHole::Yes : svg::IsHole::No;
       }
-      svg::Document doc(canvasSize, svg::RGB{6, 12, 34});
       doc.addPolygon(quadTilingStep2,
-                     {}, svg::StrokesStyle{svg::RGB{175, 231, 245}, strokesWidth},
-                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                     {}, {{svg::RGB{175, 231, 245}, strokesWidth}},
+                     [&](const auto &tr, size_t idx) {
                         return isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
                      });
       doc.addPolygon(quadTilingStep2,
-                     {}, svg::StrokesStyle{svg::RGB{39, 100, 180}, strokesWidth},
-                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                     {}, {{svg::RGB{39, 100, 180}, strokesWidth}},
+                     [&](const auto &tr, size_t idx) {
                         return !isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
                      });
       doc.addPolygon(quadTilingStep2,
-                     {}, svg::StrokesStyle{svg::RGB{119, 236, 246}, strokesWidth},
-                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                     {}, {{svg::RGB{119, 236, 246}, strokesWidth}},
+                     [&](const auto &tr, size_t idx) {
                         return isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
                      });
       doc.addPolygon(quadTilingStep2,
-                     {}, svg::StrokesStyle{svg::RGB{76, 142, 240}, strokesWidth},
-                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                     {}, {{svg::RGB{76, 142, 240}, strokesWidth}},
+                     [&](const auto &tr, size_t idx) {
                         return !isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
                      });
 
       doc.addPolygon(quadTilingStep2,
-                     {}, svg::StrokesStyle{svg::RGB{16, 48, 120}, strokesWidth},
-                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                     {}, {{svg::RGB{16, 48, 120}, strokesWidth}},
+                     [&](const auto &tr, size_t idx) {
                         return isHole[idx] == svg::IsHole::Yes;
                      });
 
-      fmt::print(doc.getContent());
-      doc.save("toto.svg");
+      // fmt::print(doc.getContent());
 
-      if (!svg::saveTilingNeon(filename, addMargin(quadTilingStep2, margin), canvasSize,
-                               svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
-                               svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
-                               svg::RGB{16, 48, 120}, svg::RGB{6, 12, 34}, threshold)) {
-        spdlog::error("Failed to save in file");
-        return EXIT_FAILURE;
-      }
     } else {
       if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
                            svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
@@ -169,17 +165,26 @@ int main(int argc, char *argv[]) try {
 
     if (neon) {
       const float margin = std::max(3.f, norm(quadTiling[0].vertices[0] - quadTiling[0].vertices[1]) / 15.0f);
-      if (!svg::saveTilingNeon(filename, addMargin(quadTiling, margin), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
-        spdlog::error("Failed to save in file");
-        return EXIT_FAILURE;
-      }
-    } else {
-      if (!svg::saveTiling(filename, addMargin(quadTiling, 15.f), canvasSize, svg::RGB{140, 140, 140}, svg::RGB{70, 70, 70}, svg::RGB{30, 30, 30}, threshold)) {
-        spdlog::error("Failed to save in file");
-        return EXIT_FAILURE;
-      }
+      quadTiling = addMargin(quadTiling, margin);
     }
+
+    doc.addPolygon(quadTiling, {{140, 140, 140}}, {}, [&](const auto &tr, size_t idx) {
+                      return !isSmall(tr.color) && distrib(gen) >= threshold;
+                    });
+
+    doc.addPolygon(quadTiling, {{70, 70, 70}}, {}, [&](const auto &tr, size_t idx) {
+                      return isSmall(tr.color) && distrib(gen) >= threshold;
+                    });
+
+    const float strokesWidth = std::sqrt(normSq(quadTiling[0].vertices[0]-quadTiling[0].vertices[1])) / 30.0f;
+
+    doc.addPolygon(quadTiling, {}, {{svg::RGB{0, 0, 0}, strokesWidth}});
+
+
   }
+
+  doc.save(filename);
+
   std::chrono::duration<double, std::milli> elapsed_temp = std::chrono::high_resolution_clock::now() - start_temp;
   fmt::print("Execution time: {:.2f} ms \n", elapsed_temp.count());
 

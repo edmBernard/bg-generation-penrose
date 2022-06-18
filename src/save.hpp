@@ -41,6 +41,7 @@ struct RGB {
   friend std::ostream &operator<<(std::ostream &os, const RGB &rgb ) {
     return os << fmt::format("rgb({},{},{})", rgb.r, rgb.g, rgb.b);
   }
+
 };
 
 struct Fill {
@@ -57,6 +58,10 @@ struct Fill {
   friend std::ostream &operator<<(std::ostream &os, const Fill &fill ) {
     return os << fmt::format("fill:", fill.color);
   }
+  friend std::ostream &operator<<(std::ostream &os, const std::optional<Fill> &fill ) {
+    return os << (fill.has_value() ? fmt::format("", fill.value()) : "fill:none");
+  }
+
 };
 
 struct StrokesStyle {
@@ -71,8 +76,11 @@ struct StrokesStyle {
       : color{rgb}, width(width) {
   }
 
-  friend std::ostream &operator<<(std::ostream &os, const StrokesStyle &rgb ) {
-    return os << fmt::format("stroke:{};stroke-width:{};stroke-linecap:butt;stroke-linejoin:miter", rgb.color, rgb.width);
+  friend std::ostream &operator<<(std::ostream &os, const StrokesStyle &stroke ) {
+    return os << fmt::format("stroke:{};stroke-width:{};stroke-linecap:butt;stroke-linejoin:miter", stroke.color, stroke.width);
+  }
+  friend std::ostream &operator<<(std::ostream &os, const std::optional<StrokesStyle> &stroke ) {
+    return os << (stroke.has_value() ? fmt::format("{}", stroke.value()) : "");
   }
 };
 
@@ -252,7 +260,7 @@ public:
   }
 
   template <typename T>
-  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle, std::function<bool(const std::type_identity_t<T>&, size_t)> func = [](const T &, size_t){ return true; }) {
+  void addPolygon(std::vector<T> polygons, std::optional<Fill> color, std::optional<StrokesStyle> strokeStyle, std::function<bool(const std::type_identity_t<T>&, size_t)> func = [](const T &, size_t){ return true; }) {
     data += fmt::format("<path style='{};{}' d='", color, strokeStyle);
     for (size_t idx = 0; idx < polygons.size(); ++idx) {
       const T& polygon = polygons[idx];
@@ -263,12 +271,12 @@ public:
   }
 
   template <typename T>
-  void addPolygon(std::vector<T> polygons, RGB color, StrokesStyle strokeStyle, std::function<bool(const std::type_identity_t<T>&)> func) {
+  void addPolygon(std::vector<T> polygons, std::optional<Fill> color, std::optional<StrokesStyle> strokeStyle, std::function<bool(const std::type_identity_t<T>&)> func) {
     addPolygon(polygons, color, strokeStyle, [](T, size_t){ return func(T); });
   }
 
   template <typename T>
-  void addPolygon(T polygon, RGB color, StrokesStyle strokeStyle) {
+  void addPolygon(T polygon, std::optional<Fill> color, std::optional<StrokesStyle> strokeStyle) {
     addPolygon(std::vector<T>{polygon}, color, strokeStyle);
   }
 
