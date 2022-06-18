@@ -56,10 +56,10 @@ struct Fill {
   }
 
   friend std::ostream &operator<<(std::ostream &os, const Fill &fill ) {
-    return os << fmt::format("fill:", fill.color);
+    return os << fmt::format("fill:{}", fill.color);
   }
   friend std::ostream &operator<<(std::ostream &os, const std::optional<Fill> &fill ) {
-    return os << (fill.has_value() ? fmt::format("", fill.value()) : "fill:none");
+    return os << (fill.has_value() ? fmt::format("{}", fill.value()) : "fill:none");
   }
 
 };

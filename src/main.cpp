@@ -19,6 +19,7 @@
 #include <chrono>
 #include <fstream>
 #include <vector>
+#include <optional>
 
 int main(int argc, char *argv[]) try {
 
@@ -102,6 +103,8 @@ int main(int argc, char *argv[]) try {
 
   svg::Document doc(canvasSize, svg::RGB{6, 12, 34});
 
+  using Style = std::pair<std::optional<svg::Fill>, std::optional<svg::StrokesStyle>>;
+
   if (step != 0) {
     std::vector<PenroseQuadrilateral> quadTilingStep1 = deflateAndMerge(tiling, step);
     setRandomFlag(quadTilingStep1, 5);
@@ -109,77 +112,80 @@ int main(int argc, char *argv[]) try {
 
     std::vector<PenroseQuadrilateral> quadTilingStep2 = deflateAndMerge(tiling, level - step);
 
+    Style style1 = {{{26, 78, 196}}, {}};
+    Style style2 = {{{16, 48, 120}}, {}};
+    Style style3 = {{{20, 145, 239}}, {}};
+    Style style4 = {{{13, 98, 162}}, {}};
+    Style style5 = {{}, {}};
+    const float strokesWidthStep2 = norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 15.0f;
+    Style style6 = {{}, {{{0, 0, 0}, strokesWidthStep2}}};
+    const float strokesWidthStep1 = norm(quadTilingStep1[0].vertices[0] - quadTilingStep1[0].vertices[1]) / 20.0f;
+    Style style7 = {{}, {{{0, 0, 0}, strokesWidthStep1}}};
+
     if (neon) {
       const float margin = std::max(3.f, norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 30.0f);
 
       quadTilingStep2 = addMargin(quadTilingStep2, margin);
-      const float strokesWidth = norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 45.0f;
+      const float strokesWidth = norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 30.0f;
 
-
-      std::vector<svg::IsHole> isHole(quadTilingStep2.size());
-      for (auto& tag : isHole)
-      {
-        tag = distrib(gen) >= threshold ? svg::IsHole::Yes : svg::IsHole::No;
-      }
-      doc.addPolygon(quadTilingStep2,
-                     {}, {{svg::RGB{175, 231, 245}, strokesWidth}},
-                     [&](const auto &tr, size_t idx) {
-                        return isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
-                     });
-      doc.addPolygon(quadTilingStep2,
-                     {}, {{svg::RGB{39, 100, 180}, strokesWidth}},
-                     [&](const auto &tr, size_t idx) {
-                        return !isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
-                     });
-      doc.addPolygon(quadTilingStep2,
-                     {}, {{svg::RGB{119, 236, 246}, strokesWidth}},
-                     [&](const auto &tr, size_t idx) {
-                        return isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
-                     });
-      doc.addPolygon(quadTilingStep2,
-                     {}, {{svg::RGB{76, 142, 240}, strokesWidth}},
-                     [&](const auto &tr, size_t idx) {
-                        return !isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
-                     });
-
-      doc.addPolygon(quadTilingStep2,
-                     {}, {{svg::RGB{16, 48, 120}, strokesWidth}},
-                     [&](const auto &tr, size_t idx) {
-                        return isHole[idx] == svg::IsHole::Yes;
-                     });
-
-      // fmt::print(doc.getContent());
-
-    } else {
-      if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
-                           svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
-                           svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
-                           svg::RGB{6, 12, 34}, threshold)) {
-        spdlog::error("Failed to save in file");
-        return EXIT_FAILURE;
-      }
+      style1 = {{}, {{{175, 231, 245}, strokesWidth}}};
+      style2 = {{}, {{{39, 100, 180}, strokesWidth}}};
+      style3 = {{}, {{{119, 236, 246}, strokesWidth}}};
+      style4 = {{}, {{{175, 231, 245}, strokesWidth}}};
+      style5 = {{}, {{{16, 48, 120}, strokesWidth}}};
+      style6 = {{}, {}};
+      style7 = {{}, {}};
     }
+
+    std::vector<svg::IsHole> isHole(quadTilingStep2.size());
+    for (auto& tag : isHole)
+    {
+      tag = distrib(gen) >= threshold ? svg::IsHole::Yes : svg::IsHole::No;
+    }
+
+    doc.addPolygon(quadTilingStep2, style1.first, style1.second, [&](const auto &tr, size_t idx) {
+                      return isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                    });
+    doc.addPolygon(quadTilingStep2, style2.first, style2.second, [&](const auto &tr, size_t idx) {
+                      return !isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                    });
+    doc.addPolygon(quadTilingStep2, style3.first, style3.second, [&](const auto &tr, size_t idx) {
+                      return isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                    });
+    doc.addPolygon(quadTilingStep2, style4.first, style4.second, [&](const auto &tr, size_t idx) {
+                      return !isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                    });
+    doc.addPolygon(quadTilingStep2, style5.first, style5.second, [&](const auto &tr, size_t idx) {
+                      return isHole[idx] == svg::IsHole::Yes;
+                    });
+    doc.addPolygon(quadTilingStep2, style6.first, style6.second);
+    doc.addPolygon(quadTilingStep1, style7.first, style7.second);
 
   } else {
     std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);
 
+    const float strokesWidth = std::sqrt(normSq(quadTiling[0].vertices[0]-quadTiling[0].vertices[1])) / 30.0f;
+    Style style1 = {{{140, 140, 140}}, {}};
+    Style style2 = {{{70, 70, 70}}, {}};
+    Style style3 = {{}, {{{0, 0, 0}, strokesWidth}}};
+
     if (neon) {
       const float margin = std::max(3.f, norm(quadTiling[0].vertices[0] - quadTiling[0].vertices[1]) / 15.0f);
       quadTiling = addMargin(quadTiling, margin);
+
+      const float strokesWidthMargin = std::sqrt(normSq(quadTiling[0].vertices[0]-quadTiling[0].vertices[1])) / 45.0f;
+      style1 = {{}, {{style1.first->color, strokesWidthMargin}}};
+      style2 = {{}, {{style2.first->color, strokesWidthMargin}}};
+      style3 = {{}, {}};
     }
 
-    doc.addPolygon(quadTiling, {{140, 140, 140}}, {}, [&](const auto &tr, size_t idx) {
+    doc.addPolygon(quadTiling, style1.first, style1.second, [&](const auto &tr, size_t idx) {
                       return !isSmall(tr.color) && distrib(gen) >= threshold;
                     });
-
-    doc.addPolygon(quadTiling, {{70, 70, 70}}, {}, [&](const auto &tr, size_t idx) {
+    doc.addPolygon(quadTiling, style2.first, style2.second, [&](const auto &tr, size_t idx) {
                       return isSmall(tr.color) && distrib(gen) >= threshold;
                     });
-
-    const float strokesWidth = std::sqrt(normSq(quadTiling[0].vertices[0]-quadTiling[0].vertices[1])) / 30.0f;
-
-    doc.addPolygon(quadTiling, {}, {{svg::RGB{0, 0, 0}, strokesWidth}});
-
+    doc.addPolygon(quadTiling, style3.first, style3.second);
 
   }
 
