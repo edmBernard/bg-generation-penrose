@@ -105,29 +105,64 @@ int main(int argc, char *argv[]) try {
     if (neon) {
       const float margin = std::max(3.f, norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 30.0f);
 
+      quadTilingStep2 = addMargin(quadTilingStep2, margin);
+      const float strokesWidth = norm(quadTilingStep2[0].vertices[0] - quadTilingStep2[0].vertices[1]) / 45.0f;
+
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      std::uniform_int_distribution<> distrib(0, 10);
+      std::vector<svg::IsHole> isHole(quadTilingStep2.size());
+      for (auto& tag : isHole)
+      {
+        tag = distrib(gen) >= threshold ? svg::IsHole::Yes : svg::IsHole::No;
+      }
       svg::Document doc(canvasSize, svg::RGB{6, 12, 34});
-      doc.addPolygon(quadTilingStep2, svg::RGB{175, 231, 245}, svg::StrokesStyle{svg::RGB{16, 48, 120}, 15}, [&](const auto &tr, size_t) { return isSmall(tr.color) ? true : false; });
-      doc.addPolygon(quadTilingStep2[0], svg::RGB{175, 231, 245}, svg::StrokesStyle{svg::RGB{16, 48, 120}, 15});
+      doc.addPolygon(quadTilingStep2,
+                     {}, svg::StrokesStyle{svg::RGB{175, 231, 245}, strokesWidth},
+                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                        return isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                     });
+      doc.addPolygon(quadTilingStep2,
+                     {}, svg::StrokesStyle{svg::RGB{39, 100, 180}, strokesWidth},
+                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                        return !isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                     });
+      doc.addPolygon(quadTilingStep2,
+                     {}, svg::StrokesStyle{svg::RGB{119, 236, 246}, strokesWidth},
+                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                        return isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                     });
+      doc.addPolygon(quadTilingStep2,
+                     {}, svg::StrokesStyle{svg::RGB{76, 142, 240}, strokesWidth},
+                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                        return !isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                     });
+
+      doc.addPolygon(quadTilingStep2,
+                     {}, svg::StrokesStyle{svg::RGB{16, 48, 120}, strokesWidth},
+                     [&](const penrose::PenroseQuadrilateral &tr, size_t idx) {
+                        return isHole[idx] == svg::IsHole::Yes;
+                     });
+
       fmt::print(doc.getContent());
       doc.save("toto.svg");
 
       if (!svg::saveTilingNeon(filename, addMargin(quadTilingStep2, margin), canvasSize,
-                          svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
-                          svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
-                          svg::RGB{16, 48, 120}, svg::RGB{6, 12, 34}, threshold)) {
+                               svg::RGB{175, 231, 245}, svg::RGB{39, 100, 180},
+                               svg::RGB{119, 236, 246}, svg::RGB{76, 142, 240},
+                               svg::RGB{16, 48, 120}, svg::RGB{6, 12, 34}, threshold)) {
         spdlog::error("Failed to save in file");
         return EXIT_FAILURE;
       }
     } else {
       if (!svg::saveTiling(filename, quadTilingStep1, quadTilingStep2, canvasSize,
-                          svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
-                          svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
-                          svg::RGB{6, 12, 34}, threshold)) {
+                           svg::RGB{26, 78, 196}, svg::RGB{16, 48, 120},
+                           svg::RGB{20, 145, 239}, svg::RGB{13, 98, 162},
+                           svg::RGB{6, 12, 34}, threshold)) {
         spdlog::error("Failed to save in file");
         return EXIT_FAILURE;
       }
     }
-
 
   } else {
     std::vector<PenroseQuadrilateral> quadTiling = deflateAndMerge(tiling, level);

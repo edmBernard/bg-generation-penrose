@@ -39,7 +39,7 @@ struct RGB {
   int b;
 
   friend std::ostream &operator<<(std::ostream &os, const RGB &rgb ) {
-    return os << fmt::format("rgb({},{},{})", rgb.r, rgb.b, rgb.b);
+    return os << fmt::format("rgb({},{},{})", rgb.r, rgb.g, rgb.b);
   }
 };
 
