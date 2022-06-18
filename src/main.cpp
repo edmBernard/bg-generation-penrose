@@ -21,6 +21,8 @@
 #include <vector>
 #include <optional>
 
+enum class IsHole : bool { Yes, No };
+
 int main(int argc, char *argv[]) try {
 
   spdlog::cfg::load_env_levels();
@@ -137,26 +139,26 @@ int main(int argc, char *argv[]) try {
       style7 = {{}, {}};
     }
 
-    std::vector<svg::IsHole> isHole(quadTilingStep2.size());
+    std::vector<IsHole> isHole(quadTilingStep2.size());
     for (auto& tag : isHole)
     {
-      tag = distrib(gen) >= threshold ? svg::IsHole::Yes : svg::IsHole::No;
+      tag = distrib(gen) >= threshold ? IsHole::Yes : IsHole::No;
     }
 
     doc.addPolygon(quadTilingStep2, style1.first, style1.second, [&](const auto &tr, size_t idx) {
-                      return isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                      return isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No;
                     });
     doc.addPolygon(quadTilingStep2, style2.first, style2.second, [&](const auto &tr, size_t idx) {
-                      return !isSmall(tr.color) && tr.flag && isHole[idx] == svg::IsHole::No;
+                      return !isSmall(tr.color) && tr.flag && isHole[idx] == IsHole::No;
                     });
     doc.addPolygon(quadTilingStep2, style3.first, style3.second, [&](const auto &tr, size_t idx) {
-                      return isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                      return isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No;
                     });
     doc.addPolygon(quadTilingStep2, style4.first, style4.second, [&](const auto &tr, size_t idx) {
-                      return !isSmall(tr.color) && !tr.flag && isHole[idx] == svg::IsHole::No;
+                      return !isSmall(tr.color) && !tr.flag && isHole[idx] == IsHole::No;
                     });
     doc.addPolygon(quadTilingStep2, style5.first, style5.second, [&](const auto &tr, size_t idx) {
-                      return isHole[idx] == svg::IsHole::Yes;
+                      return isHole[idx] == IsHole::Yes;
                     });
     doc.addPolygon(quadTilingStep2, style6.first, style6.second);
     doc.addPolygon(quadTilingStep1, style7.first, style7.second);
