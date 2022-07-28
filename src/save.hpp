@@ -22,6 +22,18 @@
 
 namespace svg {
 
+namespace details {
+
+std::string to_path(const Triangle &tr) {
+  // we don't close the path at the end, this allow to draw border on only 2 sides of the triangle
+  // we don't want to draw the border between 2nd and 3rd vertices
+  return fmt::format("M {} {} L {} {} L {} {}", tr.vertices[2].x, tr.vertices[2].y, tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y);
+}
+std::string to_path(const Quadrilateral &tr) {
+  return fmt::format("M {} {} L {} {} L {} {} L {} {} Z", tr.vertices[0].x, tr.vertices[0].y, tr.vertices[1].x, tr.vertices[1].y, tr.vertices[3].x, tr.vertices[3].y, tr.vertices[2].x, tr.vertices[2].y);
+}
+} // namespace details
+
 struct RGB {
   int r;
   int g;
@@ -97,7 +109,7 @@ public:
 
   template <typename T>
   void addPolygon(std::vector<T> polygons, std::optional<Fill> color, std::optional<StrokesStyle> strokeStyle, std::function<bool(const std::type_identity_t<T>&)> func) {
-    addPolygon(polygons, color, strokeStyle, [](T, size_t){ return func(T); });
+    addPolygon(polygons, color, strokeStyle, [func](T value, size_t){ return func(value); });
   }
 
   template <typename T>
